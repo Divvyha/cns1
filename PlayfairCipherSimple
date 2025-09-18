@@ -1,0 +1,58 @@
+public class PlayfairCipherSimple {
+
+    static char[][] key = {
+        {'M', 'O', 'N', 'A', 'R'},
+        {'C', 'H', 'Y', 'B', 'D'},
+        {'E', 'F', 'G', 'I', 'K'},
+        {'L', 'P', 'Q', 'S', 'T'},
+        {'U', 'V', 'W', 'X', 'Z'}
+    };
+
+    // Function to find position of a character in the key matrix
+    static int[] pos(char c) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (key[i][j] == c) {
+                    return new int[]{i, j};
+                }
+            }
+        }
+        return null;
+    }
+
+    // Function to encrypt or decrypt based on 'encrypt' flag
+    static String process(String msg, boolean encrypt) {
+        msg = msg.replace("J", "I"); // J is treated as I
+        if (msg.length() % 2 != 0) msg += "X"; // Padding if odd length
+
+        String res = "";
+        int shift = encrypt ? 1 : -1; // +1 for encryption, -1 for decryption
+
+        for (int i = 0; i < msg.length(); i += 2) {
+            int[] p1 = pos(msg.charAt(i));
+            int[] p2 = pos(msg.charAt(i + 1));
+
+            if (p1[0] == p2[0]) { // Same row
+                res += key[p1[0]][(p1[1] + 5 + shift) % 5];
+                res += key[p2[0]][(p2[1] + 5 + shift) % 5];
+            } else if (p1[1] == p2[1]) { // Same column
+                res += key[(p1[0] + 5 + shift) % 5][p1[1]];
+                res += key[(p2[0] + 5 + shift) % 5][p2[1]];
+            } else { // Rectangle case
+                res += key[p1[0]][p2[1]];
+                res += key[p2[0]][p1[1]];
+            }
+        }
+        return res;
+    }
+
+    public static void main(String[] args) {
+        String msg = "HELLO";
+        String enc = process(msg, true);   // Encrypt
+        String dec = process(enc, false);  // Decrypt
+
+        System.out.println("Original  : " + msg);
+        System.out.println("Encrypted : " + enc);
+        System.out.println("Decrypted : " + dec);
+    }
+}
